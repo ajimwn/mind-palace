@@ -1,0 +1,14 @@
+# Obsidian workspace & cache (personal to each device)
+.obsidian/workspace.json
+.obsidian/workspaces.json
+.obsidian/cache
+
+# Trash & OS noise
+.trash/
+.DS_Store
+Thumbs.db
+
+# Sensitive / secret material — never commit these
+*.ovpn
+*.key
+*.pem
