@@ -1,7 +1,7 @@
 ---
 type: section
 room: red
-tags: [red/notes]
+tags: [red/monographs]
 ---
 
 # Red: Monographs
@@ -36,17 +36,17 @@ Discovery     ← Credential     ← Lateral       ← Collection   ← Defense 
 |-----------|------|--------|
 | [[TA0043 - Reconnaissance]] | Reconnaissance | ✅ Ready |
 | [[TA0001 - Initial Access]] | Initial Access | ✅ Ready |
-| [[TA0002 - Execution]] | Execution | 🔲 Todo |
-| [[TA0003 - Persistence]] | Persistence | 🔲 Todo |
+| [[TA0002 - Execution]] | Execution | ✅ Ready |
+| [[TA0003 - Persistence]] | Persistence | ✅ Ready |
 | [[TA0004 - Privilege Escalation]] | Privilege Escalation | ✅ Ready |
-| [[TA0005 - Defense Evasion]] | Defense Evasion | 🔲 Todo |
-| [[TA0006 - Credential Access]] | Credential Access | 🔲 Todo |
-| [[TA0007 - Discovery]] | Discovery | 🔲 Todo |
-| [[TA0008 - Lateral Movement]] | Lateral Movement | 🔲 Todo |
-| [[TA0009 - Collection]] | Collection | 🔲 Todo |
-| [[TA0011 - Command and Control]] | Command and Control | 🔲 Todo |
-| [[TA0010 - Exfiltration]] | Exfiltration | 🔲 Todo |
-| [[TA0040 - Impact]] | Impact | 🔲 Todo |
+| [[TA0005 - Defense Evasion]] | Defense Evasion | ✅ Ready |
+| [[TA0006 - Credential Access]] | Credential Access | ✅ Ready |
+| [[TA0007 - Discovery]] | Discovery | ✅ Ready |
+| [[TA0008 - Lateral Movement]] | Lateral Movement | ✅ Ready |
+| [[TA0009 - Collection]] | Collection | ✅ Ready |
+| [[TA0011 - Command and Control]] | Command and Control | ✅ Ready |
+| [[TA0010 - Exfiltration]] | Exfiltration | ✅ Ready |
+| [[TA0040 - Impact]] | Impact | ✅ Ready |
 
 ---
 
