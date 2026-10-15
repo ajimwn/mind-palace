@@ -36,6 +36,12 @@ PREPARE ──► DETECT & ANALYSE ──► CONTAIN ──► ERADICATE ──�
 | [[IR - Eradicate]] | Eradicate | 🔲 Planned |
 | [[IR - Recover]] | Recover | 🔲 Planned |
 
+## Detection Tool Monographs
+
+| Tool | Purpose | Status |
+|------|---------|--------|
+| [[Detection - Snort IDS]] | NIDS/IPS rules, sniffer, PCAP analysis | ✅ Ready |
+
 ---
 
 ## D3FEND Categories
