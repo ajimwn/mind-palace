@@ -76,28 +76,28 @@ snort -v -i eth0
 
 ## Logger Mode
 
-Writes captured packets to disk.
+Writes captured packets to disk. Use `-dev` to get link-layer headers (`-e`), payload (`-d`), and verbose (`-v`) together.
 
 ```bash
 # Log to default path (/var/log/snort)
-snort -v -l /var/log/snort
+snort -dev -l /var/log/snort
 
-# Log to custom path
-snort -v -l /home/username/Desktop
+# Log to custom/alternative path
+snort -dev -l /home/username/Desktop
 
 # Log in ASCII format (human-readable filenames)
-snort -v -K ASCII -l /var/log/snort
+snort -dev -K ASCII
 
 # Read a previously captured Snort log file
-snort -v -r snort.log
+snort -dev -r snort.log
 
 # Read only N packets from log
-snort -v -r snort.log -n 10
+snort -dev -r snort.log -n 10
 
 # Filter log with Berkeley Packet Filters (BPF)
-snort -v -r snort.log tcp
-snort -v -r snort.log 'udp and port 53'
-snort -v -r snort.log 'host 192.168.1.1'
+snort -dev -r snort.log tcp
+snort -dev -r snort.log 'udp and port 53'
+snort -dev -r snort.log 'host 192.168.1.1'
 ```
 
 > [!note] Default Log Path
@@ -226,45 +226,42 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS ( <options> )
 
 ---
 
-## Rule Options
+## Rule Options Reference Table
 
-### General Options
-| Option | Description | Example |
-|--------|-------------|---------|
-| `msg` | Alert message displayed | `msg:"Directory Traversal!";` |
-| `sid` | Unique rule ID (>1000000 for custom) | `sid:1000001;` |
-| `rev` | Rule revision number | `rev:1;` |
-| `reference` | External reference (CVE, URL) | `reference:CVE,2021-44228;` |
-| `priority` | Rule priority (1=highest) | `priority:1;` |
+| Category | Component | Keyword | Description |
+|----------|-----------|---------|-------------|
+| **Rule Header** | Action | `alert` | What Snort does on match (`alert` / `log` / `pass` / `drop` / `reject`) |
+| | Protocol | `tcp` | Protocol to analyse: `tcp` `udp` `icmp` `ip` |
+| | Source IP | `$EXTERNAL_NET` | Source IP address or variable |
+| | Source Port | `any` | Source port or range |
+| | Direction | `->` | `->` unidirectional · `<>` bidirectional |
+| | Destination IP | `$HOME_NET` | Destination IP address or variable |
+| | Destination Port | `$HTTP_PORTS` | Destination port or variable |
+| **General Options** | Message | `msg` | Alert message displayed on match |
+| | Reference | `reference` | External reference: `reference:CVE,2021-44228;` |
+| | Rule ID | `sid` | Unique rule number (custom rules: > 1,000,000) |
+| | Revision | `rev` | Revision number for the rule |
+| **Non-Payload Options** | Flow | `flow` | TCP stream direction: `flow:established,to_server;` |
+| | Flags | `flags` | TCP flag check: `flags:S;` (SYN only) |
+| | TTL | `ttl` | IP TTL value match: `ttl:128;` |
+| | ICMP Type | `itype` | ICMP type number: `itype:8;` (echo request) |
+| | Payload Size | `dsize` | Data size check: `dsize:>100;` |
+| | Frag bits | `fragbits` | IP fragmentation bits: `fragbits:M;` |
+| **Payload Options** | Case sensitivity | `nocase` | Disable case sensitivity on preceding `content` |
+| | Content search | `content` | Exact string or hex: `content:"passwd";` or `content:"\|2E 2E 2F\|";` |
+| | Fast pattern | `fast_pattern` | Prioritise this content for search engine (required with multiple `content` options) |
+| | Offset | `offset` | Start search at byte N: `offset:4;` |
+| | Depth | `depth` | Search only first N bytes: `depth:20;` |
+| | Distance | `distance` | Must follow previous match by N bytes: `distance:0;` |
+| | Within | `within` | Must appear within N bytes of previous match: `within:10;` |
+| | Regex | `pcre` | Perl-compatible regex: `pcre:"/passwd/i";` |
+| **Post-Detection Options** | Session | `session` | Extract TCP session data: `session:all;` |
+| | Threshold | `threshold` | Rate-limit alerts: `threshold:type limit,track by_src,count 5,seconds 60;` |
+| | Detection filter | `detection_filter` | Alert only after N matches: `detection_filter:track by_src,count 10,seconds 5;` |
 
-### Payload Detection Options
-| Option | Description | Example |
-|--------|-------------|---------|
-| `content` | Exact byte/string match | `content:"passwd";` |
-| `nocase` | Case-insensitive content match | `content:"GET"; nocase;` |
-| `fast_pattern` | Prioritise this content for search engine | `fast_pattern;` |
-| `offset` | Start content search at byte N | `offset:4;` |
-| `depth` | Only search first N bytes | `depth:20;` |
-| `distance` | Content must follow previous match by N bytes | `distance:0;` |
-| `within` | Content must appear within N bytes of prior match | `within:10;` |
-| `pcre` | Perl-compatible regex | `pcre:"/passwd/i";` |
+> [!note] Source
+> TryHackMe — [Snort Room](https://tryhackme.com/room/snort)
 
-### Non-Payload Detection Options
-| Option | Description | Example |
-|--------|-------------|---------|
-| `flags` | TCP flag check | `flags:S;` (SYN) |
-| `ttl` | Match IP TTL value | `ttl:128;` |
-| `itype` | ICMP type | `itype:8;` (ICMP echo) |
-| `dsize` | Payload size match | `dsize:>100;` |
-| `fragbits` | IP fragmentation bits | `fragbits:M;` |
-
-### Flow / Post-Detection Options
-| Option | Description | Example |
-|--------|-------------|---------|
-| `flow` | TCP session direction | `flow:established,to_server;` |
-| `session` | Extract session data | `session:all;` |
-| `threshold` | Rate limit alerts | `threshold:type limit,track by_src,count 5,seconds 60;` |
-| `detection_filter` | Alert only after N matches | `detection_filter:track by_src,count 10,seconds 5;` |
 
 ---
 
