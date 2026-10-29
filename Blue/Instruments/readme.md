@@ -17,14 +17,13 @@ Analysis tools, commands, and filters for detection, investigation, and response
 
 | Category | Tools |
 |----------|-------|
-| Packet Analysis | Wireshark, tshark, tcpdump, NetworkMiner |
-| Log Analysis | Chainsaw, Hayabusa, grep/awk patterns |
-| Memory Forensics | Volatility3 |
-| Endpoint | Sysinternals (autoruns, procexp, procmon), velociraptor |
-| SIEM Queries | Splunk SPL, Elastic KQL |
-| Threat Intel | VirusTotal CLI, MISP, shodan |
-| Malware Analysis | yara, capa, strings, exiftool |
-| IOC Sources | See [[IOC Hunting & Threat Intel]] |
+| Packet Analysis | [[Blue/Instruments/wireshark\|Wireshark / tshark]], [[Blue/Instruments/tcpdump\|tcpdump]], [[Blue/Instruments/networkminer\|NetworkMiner]] |
+| Log Analysis | [[Blue/Instruments/chainsaw\|Chainsaw]], [[Blue/Instruments/log-hunting\|grep / awk patterns]] |
+| Memory Forensics | [[Blue/Instruments/volatility\|Volatility 3]] |
+| Endpoint & Detection | [[Blue/Instruments/snort\|Snort NIDS]], Sysinternals, velociraptor |
+| SIEM Queries | [[Blue/Instruments/splunk\|Splunk SPL Queries]] |
+| Threat Intel & IOCs | [[Blue/Instruments/ioc-lookup\|IOC Lookup (VT, Shodan, AbuseIPDB)]], [[Blue/Monographs/IOC Hunting & Threat Intel\|IOC Hunting & Threat Intel]] |
+| Malware Analysis | [[Blue/Instruments/yara\|YARA]], [[Blue/Instruments/malware-analysis\|Static Tools (capa, floss, strings, exiftool)]] |
 
 ---
 

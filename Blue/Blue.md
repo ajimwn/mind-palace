@@ -16,7 +16,7 @@ The official force: detecting intrusions, investigating incidents, and defending
 
 | Section | Holds |
 |---|---|
-| [[Blue - Notes]] | Monographs: detection and investigation concepts |
-| [[Blue - Tools]] | Instruments: analysis tools and queries |
+| [[Blue/Monographs/readme\|Blue: Monographs]] | Detection, incident response, and threat intelligence concepts |
+| [[Blue/Instruments/readme\|Blue: Instruments]] | Analysis tools, forensic utilities, queries, and filters |
 
 ↩ [[Mind Palace]]

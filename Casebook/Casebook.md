@@ -20,6 +20,7 @@ Every CTF challenge, TryHackMe room, HackTheBox machine, and lab exercise is a c
 
 | Category | Identity | Covers |
 |----------|---------|--------|
+| [[Casebook/Labs/readme\|Labs & Walkthroughs]] | The Practice Ground | TryHackMe rooms, HTB Academy, hands-on lab environments |
 | [[Casebook/Cryptography/readme\|Cryptography]] | The Dancing Men | Ciphers, encryption, hashing, encoding challenges |
 | [[Casebook/Forensics/readme\|Forensics]] | The Magnifying Glass | Disk, memory, network, file analysis |
 | [[Casebook/Miscellaneous/readme\|Miscellaneous]] | The Curious Incident | Puzzles, scripting, jails, and oddities |
